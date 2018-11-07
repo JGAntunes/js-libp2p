@@ -2,12 +2,15 @@
 
 const setImmediate = require('async/setImmediate')
 const NOT_STARTED_YET = require('./error-messages').NOT_STARTED_YET
-const FloodSub = require('libp2p-floodsub')
+const Pulsarcast = require('pulsarcast')
 
 module.exports = (node) => {
-  const floodSub = new FloodSub(node)
+  // Keep this naming for now, unknown impact of change
+  const floodSub = new Pulsarcast(node)
 
   node._floodSub = floodSub
+
+  let FIRST_TOPIC = true
 
   return {
     subscribe: (topic, options, handler, callback) => {
@@ -22,11 +25,17 @@ module.exports = (node) => {
       }
 
       function subscribe (cb) {
-        if (floodSub.listenerCount(topic) === 0) {
+        // if (floodSub.listenerCount(topic) === 0) {
+        if (FIRST_TOPIC) {
+          floodSub.createTopic(topic)
+          FIRST_TOPIC = false
+        } else {
           floodSub.subscribe(topic)
         }
+          // floodSub.subscribe(topic)
+        // }
 
-        floodSub.on(topic, handler)
+        // floodSub.on(topic, handler)
         setImmediate(cb)
       }
 
