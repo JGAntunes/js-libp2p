@@ -47,6 +47,7 @@
     "fsm-event": "^2.1.0",
     "joi": "^14.0.6",
     "joi-browser": "^13.4.0",
+    "js-pulsarcast": "jgantunes/js-pulsarcast",
     "libp2p-connection-manager": "~0.0.2",
     "libp2p-floodsub": "~0.15.1",
     "libp2p-ping": "~0.8.3",
