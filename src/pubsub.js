@@ -10,8 +10,6 @@ module.exports = (node) => {
 
   node._floodSub = floodSub
 
-  let FIRST_TOPIC = true
-
   return {
     subscribe: (topic, options, handler, callback) => {
       if (typeof options === 'function') {
@@ -25,21 +23,35 @@ module.exports = (node) => {
       }
 
       function subscribe (cb) {
-        // if (floodSub.listenerCount(topic) === 0) {
-        if (FIRST_TOPIC) {
-          floodSub.createTopic(topic)
-          FIRST_TOPIC = false
-        } else {
+        if (floodSub.listenerCount(topic) === 0) {
           floodSub.subscribe(topic)
         }
-          // floodSub.subscribe(topic)
-        // }
 
-        // floodSub.on(topic, handler)
+        floodSub.on(topic, handler)
         setImmediate(cb)
       }
 
       subscribe(callback)
+    },
+
+    createTopic: (topic, options, handler, callback) => {
+      if (typeof options === 'function') {
+        callback = handler
+        handler = options
+        options = {}
+      }
+
+      if (!node.isStarted() && !floodSub.started) {
+        return setImmediate(() => callback(new Error(NOT_STARTED_YET)))
+      }
+
+      function create (cb) {
+        floodSub.createTopic(topic)
+        floodSub.on(topic, handler)
+        setImmediate(cb)
+      }
+
+      create(callback)
     },
 
     unsubscribe: (topic, handler) => {
