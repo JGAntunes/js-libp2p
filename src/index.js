@@ -21,6 +21,7 @@ const peerRouting = require('./peer-routing')
 const contentRouting = require('./content-routing')
 const dht = require('./dht')
 const pubsub = require('./pubsub')
+const pulsarcast = require('./pulsarcast')
 const getPeerInfo = require('./get-peer-info')
 const validateConfig = require('./config').validate
 
@@ -118,6 +119,7 @@ class Node extends EventEmitter {
     // enable/disable pubsub
     if (this._config.EXPERIMENTAL.pubsub) {
       this.pubsub = pubsub(this)
+      this.pulsarcast = pulsarcast(this)
     }
 
     // Attach remaining APIs

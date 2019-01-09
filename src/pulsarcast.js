@@ -2,12 +2,12 @@
 
 const setImmediate = require('async/setImmediate')
 const NOT_STARTED_YET = require('./error-messages').NOT_STARTED_YET
-const FloodSub = require('libp2p-floodsub')
+const Pulsarcast = require('pulsarcast')
 
 module.exports = (node) => {
-  const floodSub = new FloodSub(node)
+  const pulsarcast = new Pulsarcast(node)
 
-  node._floodSub = floodSub
+  node._pulsarcast = pulsarcast
 
   return {
     subscribe: (topic, options, handler, callback) => {
@@ -17,36 +17,56 @@ module.exports = (node) => {
         options = {}
       }
 
-      if (!node.isStarted() && !floodSub.started) {
+      if (!node.isStarted() && !pulsarcast.started) {
         return setImmediate(() => callback(new Error(NOT_STARTED_YET)))
       }
 
       function subscribe (cb) {
-        if (floodSub.listenerCount(topic) === 0) {
-          floodSub.subscribe(topic)
+        if (pulsarcast.listenerCount(topic) === 0) {
+          pulsarcast.subscribe(topic)
         }
 
-        floodSub.on(topic, handler)
+        pulsarcast.on(topic, handler)
         setImmediate(cb)
       }
 
       subscribe(callback)
     },
 
+    createTopic: (topic, options, handler, callback) => {
+      if (typeof options === 'function') {
+        callback = handler
+        handler = options
+        options = {}
+      }
+
+      if (!node.isStarted() && !pulsarcast.started) {
+        return setImmediate(() => callback(new Error(NOT_STARTED_YET)))
+      }
+
+      function create (cb) {
+        pulsarcast.createTopic(topic)
+        pulsarcast.on(topic, handler)
+        setImmediate(cb)
+      }
+
+      create(callback)
+    },
+
     unsubscribe: (topic, handler) => {
-      if (!node.isStarted() && !floodSub.started) {
+      if (!node.isStarted() && !pulsarcast.started) {
         throw new Error(NOT_STARTED_YET)
       }
 
-      floodSub.removeListener(topic, handler)
+      pulsarcast.removeListener(topic, handler)
 
-      if (floodSub.listenerCount(topic) === 0) {
-        floodSub.unsubscribe(topic)
+      if (pulsarcast.listenerCount(topic) === 0) {
+        pulsarcast.unsubscribe(topic)
       }
     },
 
     publish: (topic, data, callback) => {
-      if (!node.isStarted() && !floodSub.started) {
+      if (!node.isStarted() && !pulsarcast.started) {
         return setImmediate(() => callback(new Error(NOT_STARTED_YET)))
       }
 
@@ -54,23 +74,23 @@ module.exports = (node) => {
         return setImmediate(() => callback(new Error('data must be a Buffer')))
       }
 
-      floodSub.publish(topic, data)
+      pulsarcast.publish(topic, data)
 
       setImmediate(() => callback())
     },
 
     ls: (callback) => {
-      if (!node.isStarted() && !floodSub.started) {
+      if (!node.isStarted() && !pulsarcast.started) {
         return setImmediate(() => callback(new Error(NOT_STARTED_YET)))
       }
 
-      const subscriptions = Array.from(floodSub.subscriptions)
+      const subscriptions = Array.from(pulsarcast.subscriptions)
 
       setImmediate(() => callback(null, subscriptions))
     },
 
     peers: (topic, callback) => {
-      if (!node.isStarted() && !floodSub.started) {
+      if (!node.isStarted() && !pulsarcast.started) {
         return setImmediate(() => callback(new Error(NOT_STARTED_YET)))
       }
 
@@ -79,7 +99,7 @@ module.exports = (node) => {
         topic = null
       }
 
-      const peers = Array.from(floodSub.peers.values())
+      const peers = Array.from(pulsarcast.peers.values())
         .filter((peer) => topic ? peer.topics.has(topic) : true)
         .map((peer) => peer.info.id.toB58String())
 
@@ -87,7 +107,7 @@ module.exports = (node) => {
     },
 
     setMaxListeners (n) {
-      return floodSub.setMaxListeners(n)
+      return pulsarcast.setMaxListeners(n)
     }
   }
 }
