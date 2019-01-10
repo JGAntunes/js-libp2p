@@ -415,10 +415,14 @@ class Node extends EventEmitter {
         }
       },
       (cb) => {
-        // TODO: chicken-and-egg problem #2:
-        // have to set started here because FloodSub requires libp2p is already started
         if (this._floodSub) {
           return this._floodSub.start(cb)
+        }
+        cb()
+      },
+      (cb) => {
+        if (this._pulsarcast) {
+          return this._pulsarcast.start(cb)
         }
         cb()
       },
