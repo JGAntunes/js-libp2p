@@ -22,12 +22,10 @@ module.exports = (node) => {
       }
 
       function subscribe (cb) {
-        if (pulsarcast.listenerCount(topic) === 0) {
-          pulsarcast.subscribe(topic)
-        }
-
         pulsarcast.on(topic, handler)
-        setImmediate(cb)
+        if (pulsarcast.listenerCount(topic) === 0) {
+          pulsarcast.subscribe(topic, callback)
+        }
       }
 
       subscribe(callback)
@@ -45,9 +43,8 @@ module.exports = (node) => {
       }
 
       function create (cb) {
-        pulsarcast.createTopic(topic)
         pulsarcast.on(topic, handler)
-        setImmediate(cb)
+        pulsarcast.createTopic(topic, callback)
       }
 
       create(callback)
@@ -74,9 +71,7 @@ module.exports = (node) => {
         return setImmediate(() => callback(new Error('data must be a Buffer')))
       }
 
-      pulsarcast.publish(topic, data)
-
-      setImmediate(() => callback())
+      pulsarcast.publish(topic, data, callback)
     },
 
     ls: (callback) => {
