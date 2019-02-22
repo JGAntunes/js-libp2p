@@ -23,10 +23,7 @@ module.exports = (node) => {
 
       function subscribe (cb) {
         pulsarcast.on(topic, handler)
-        if (pulsarcast.listenerCount(topic) === 0) {
-          return pulsarcast.subscribe(topic, cb)
-        }
-        setImmediate(cb)
+        return pulsarcast.subscribe(topic, cb)
       }
 
       subscribe(callback)
