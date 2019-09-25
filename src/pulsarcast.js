@@ -41,13 +41,10 @@ module.exports = (node) => {
       }
 
       function create (cb) {
-        pulsarcast.createTopic(topic, (err, topicNode) => {
+        pulsarcast.createTopic(topic, (err, topicCID, topicNode) => {
           if (err) return cb(err)
-          topicNode.getCID((err, cid) => {
-            if (err) return cb(err)
-            pulsarcast.on(cid.toBaseEncodedString(), handler)
-            cb(null, topicNode)
-          })
+          pulsarcast.on(topicCID.toBaseEncodedString(), handler)
+          cb(null, topicNode)
         })
       }
 

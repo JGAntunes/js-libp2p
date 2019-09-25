@@ -1,0 +1,21 @@
+{
+  "name": "pubsub",
+  "version": "1.0.0",
+  "description": "Publish Subscribe is something out of scope for the modular networking stack that is libp2p, however, it is something that is enabled through the primitives that libp2p offers and so it has become one of the most interesting use cases for libp2p.",
+  "main": "1.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.5.0",
+    "libp2p": "^0.10.0",
+    "libp2p-floodsub": "^0.10.0",
+    "libp2p-mdns": "^0.7.1",
+    "libp2p-multiplex": "^0.4.4",
+    "libp2p-secio": "^0.6.8",
+    "libp2p-tcp": "^0.10.1",
+    "peer-info": "^0.9.3"
+  }
+}
