@@ -23,7 +23,7 @@ module.exports = (node) => {
 
       function subscribe (cb) {
         pulsarcast.on(topic, handler)
-        return pulsarcast.subscribe(topic, cb)
+        return pulsarcast.subscribe(topic, options, cb)
       }
 
       subscribe(callback)
@@ -41,7 +41,7 @@ module.exports = (node) => {
       }
 
       function create (cb) {
-        pulsarcast.createTopic(topic, (err, topicCID, topicNode) => {
+        pulsarcast.createTopic(topic, options, (err, topicCID, topicNode) => {
           if (err) return cb(err)
           pulsarcast.on(topicCID.toBaseEncodedString(), handler)
           cb(null, topicNode)
